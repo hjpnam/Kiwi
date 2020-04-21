@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="h1_textSize">43sp</dimen>
+    <dimen name="timeNum_textSize">36sp</dimen>
+    <dimen name="timeText_textSize">29sp</dimen>
+</resources>

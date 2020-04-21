@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Kiwi</string>
+    <string name="et_hour_hint">HH</string>
+    <string name="et_minute_hint">MM</string>
+    <string name="tv_hour_text">hours</string>
+    <string name="tv_minute_text">minutes</string>
+    <string name="tv_buzzme_text">Buzz me in</string>
+    <string name="btn_set_alarm_text">Set alarm</string>
+    <string name="only_numbers">0123456789</string>
+</resources>
