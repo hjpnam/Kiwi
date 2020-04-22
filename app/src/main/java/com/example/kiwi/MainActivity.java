@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     EditText mHourInput;
     EditText mMinuteInput;
     TextView mMainTv;
+    // Request code for identifying PendingIntent
     private static final int PENDING_INTENT_REQUEST_CODE = 677;
     
     @Override
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         mMinuteInput.addTextChangedListener(getMinuteInputWatcher());
 
+        // Hide keyboard when touching outside EditTexts
         ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.layout_main);
         layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -47,25 +49,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Configure "Set Alarm" button to setAlarm function
         Button setAlarmBtn = (Button) findViewById(R.id.btn_set_alarm);
         setAlarmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setAlarm(v);
+                setAlarm();
             }
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (checkAlarmSet()) {
-            mMainTv.setText(R.string.alarm_set);
-        } else {
-            mMainTv.setText(R.string.tv_buzzme_text);
-        }
-    }
-
+    /*
+     * Inputwatcher for mMinuteInput EditText component
+     */
     private TextWatcher getMinuteInputWatcher() {
         TextWatcher minuteInputWatcher = new TextWatcher() {
 
@@ -90,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (minute > 59)  {
                         mMinuteInput.setText("59");
-                        Toast.makeText(MainActivity.this, "Minute cannot exceed 59.",  Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, R.string.minute_input_err_msg, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -99,15 +95,17 @@ public class MainActivity extends AppCompatActivity {
         return minuteInputWatcher;
     }
 
-
-    private void setAlarm(View view) {
-        boolean isHourEmpty = utils.isEmpty(mHourInput);
-        boolean isMinuteEmpty = utils.isEmpty(mMinuteInput);
+    /*
+     * Sets an alarm
+     */
+    private void setAlarm() {
+        boolean isHourEmpty = utils.isTextViewEmpty(mHourInput);
+        boolean isMinuteEmpty = utils.isTextViewEmpty(mMinuteInput);
         int hour = 0;
         int minute = 0;
         // If no duration has been given, prompt input
         if (isHourEmpty && isMinuteEmpty) {
-            Toast.makeText(this, "Please set the timer.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.time_input_empty, Toast.LENGTH_LONG).show();
             return;
         }
         if (!isHourEmpty) {
@@ -124,21 +122,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         long alarmTimeInMillis = System.currentTimeMillis() + utils.getDurationInMillis(hour, minute);
-        Intent intent = new Intent(this, AlertReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeInMillis, pendingIntent);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeInMillis, getAlertReceiverPendingIntent());
+        Toast.makeText(this, R.string.alarm_set, Toast.LENGTH_LONG).show();
     }
 
-    private void cancelAlarm() {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+    /*
+     * Creates and returns a pending intent for the AlertReceiver
+     *
+     * @return PendingIntent a pending intent for AlertReceiver
+     */
+    private PendingIntent getAlertReceiverPendingIntent() {
         Intent intent = new Intent(this, AlertReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.cancel(pendingIntent);
-    }
 
-    private boolean checkAlarmSet() {
-        return (PendingIntent.getBroadcast(this, PENDING_INTENT_REQUEST_CODE,
-                new Intent(this, AlertReceiver.class),
-                PendingIntent.FLAG_NO_CREATE) != null);
+        return pendingIntent;
     }
 }
