@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     EditText mHourInput;
     EditText mMinuteInput;
     TextView mMainTv;
-    private static final int pendingIntentRequestCode = 677;
+    private static final int PENDING_INTENT_REQUEST_CODE = 677;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (checkAlarmSet()) {
-
+            mMainTv.setText(R.string.alarm_set);
+        } else {
+            mMainTv.setText(R.string.tv_buzzme_text);
         }
     }
 
@@ -77,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 // Auto-generated method stub
             }
 
+            /*
+             * Make sure the minute input does not exceed 59. Any input >59 is changed down to 59.
+             */
             @Override
             public void afterTextChanged(Editable s) {
                 String minuteInput = mMinuteInput.getText().toString();
@@ -120,19 +125,19 @@ public class MainActivity extends AppCompatActivity {
 
         long alarmTimeInMillis = System.currentTimeMillis() + utils.getDurationInMillis(hour, minute);
         Intent intent = new Intent(this, AlertReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, pendingIntentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeInMillis, pendingIntent);
     }
 
     private void cancelAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlertReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, pendingIntentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
     }
 
     private boolean checkAlarmSet() {
-        return (PendingIntent.getBroadcast(this, pendingIntentRequestCode,
+        return (PendingIntent.getBroadcast(this, PENDING_INTENT_REQUEST_CODE,
                 new Intent(this, AlertReceiver.class),
                 PendingIntent.FLAG_NO_CREATE) != null);
     }
