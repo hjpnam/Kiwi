@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + utils.getDurationInMillis(hour, minute), pendingIntent);
 
-        mMainTv.setText("Alarm set for");
+        Toast.makeText(this, "Alarm set", Toast.LENGTH_LONG).show();
     }
 
     private void cancelAlarm() {
