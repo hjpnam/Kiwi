@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity {
     EditText mHourInput;
     EditText mMinuteInput;
     TextView mMainTv;
-
+    private static final int pendingIntentRequestCode = 677;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +54,14 @@ public class MainActivity extends AppCompatActivity {
                 setAlarm(v);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (checkAlarmSet()) {
+
+        }
     }
 
     private TextWatcher getMinuteInputWatcher() {
@@ -91,8 +100,6 @@ public class MainActivity extends AppCompatActivity {
         boolean isMinuteEmpty = utils.isEmpty(mMinuteInput);
         int hour = 0;
         int minute = 0;
-        int requestCode = 0;
-
         // If no duration has been given, prompt input
         if (isHourEmpty && isMinuteEmpty) {
             Toast.makeText(this, "Please set the timer.", Toast.LENGTH_LONG).show();
@@ -104,22 +111,29 @@ public class MainActivity extends AppCompatActivity {
         if (!isMinuteEmpty) {
             minute = Integer.parseInt(mMinuteInput.getText().toString());
         }
-        Log.d(TAG, String.valueOf(System.currentTimeMillis()));
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, AlertReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + utils.getDurationInMillis(hour, minute), pendingIntent);
+        if (alarmManager == null) {
+            Log.e(TAG, "alarmManager returned null");
+            return;
+        }
 
-        mMainTv.setText("Alarm set for");
+        long alarmTimeInMillis = System.currentTimeMillis() + utils.getDurationInMillis(hour, minute);
+        Intent intent = new Intent(this, AlertReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, pendingIntentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeInMillis, pendingIntent);
     }
 
     private void cancelAlarm() {
-        int requestCode = 0;
-
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlertReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, pendingIntentRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
+    }
+
+    private boolean checkAlarmSet() {
+        return (PendingIntent.getBroadcast(this, pendingIntentRequestCode,
+                new Intent(this, AlertReceiver.class),
+                PendingIntent.FLAG_NO_CREATE) != null);
     }
 }
