@@ -11,13 +11,16 @@ public class AlertReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "received alert at " + String.valueOf(System.currentTimeMillis()));
+
         final MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.beep2);
+        // Release mediaPlayer after playing sound
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 mediaPlayer.release();
             }
         });
+
         mediaPlayer.setVolume(1.0f, 1.0f);
         mediaPlayer.start();
     }

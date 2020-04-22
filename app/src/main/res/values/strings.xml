@@ -7,4 +7,7 @@
     <string name="tv_buzzme_text">Buzz me in</string>
     <string name="btn_set_alarm_text">Set alarm</string>
     <string name="only_numbers">0123456789</string>
+    <string name="alarm_set">Alarm has been set.</string>
+    <string name="time_input_empty">Please set the timer.</string>
+    <string name="minute_input_err_msg">Minute cannot exceed 59.</string>
 </resources>
